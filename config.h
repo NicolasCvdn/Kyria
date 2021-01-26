@@ -16,14 +16,16 @@
 
 #pragma once
 
-//#define MASTER_LEFT
-#define MASTER_RIGHT
+#define MASTER_LEFT
+//#define MASTER_RIGHT
 
+#define KEYLOGGER_ENABLE
+#define RGBLIGHT_STARTUP_ANIMATION
 
 #ifndef MASTER_RIGHT
 	#define ENCODER_RESOLUTION 2
 #else
-	#define ENCODER_RESOLUTION 6
+	#define ENCODER_RESOLUTION 2
 #endif
 
 #define OLED_DISPLAY_128X64
@@ -34,11 +36,10 @@
 #endif
 
 #ifdef RGBLIGHT_ENABLE
-  #define RGBLIGHT_HUE_STEP 5
+  #define RGBLIGHT_HUE_STEP 4
   #define RGBLIGHT_SAT_STEP 8
   #define RGBLIGHT_VAL_STEP 8
 #endif
-
 
 
 // Memory reduction
