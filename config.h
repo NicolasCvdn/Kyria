@@ -20,7 +20,13 @@
 //#define MASTER_RIGHT
 
 #define KEYLOGGER_ENABLE
-#define RGBLIGHT_STARTUP_ANIMATION
+
+#ifdef LEADER_ENABLE
+#define LEADER_TIMEOUT 300
+#define LEADER_PER_KEY_TIMING
+#endif
+
+#define TAPPING_TERM 200
 
 #ifndef MASTER_RIGHT
 	#define ENCODER_RESOLUTION 2
@@ -29,10 +35,10 @@
 #endif
 
 #define OLED_DISPLAY_128X64
-//#define RGBLIGHT_ANIMATIONS
 
 #ifdef OLED_DRIVER_ENABLE
-  #define OLED_DISPLAY_128X64
+	#define OLED_FONT_H "keyboards/kyria/keymaps/tourist/glcdfont.c"
+  	#define OLED_DISPLAY_128X64
 #endif
 
 #ifdef RGBLIGHT_ENABLE
@@ -41,14 +47,15 @@
   #define RGBLIGHT_VAL_STEP 8
 #endif
 
-
 // Memory reduction
 #define NO_ACTION_MACRO
-#define NO_ACTION_FUNCTION
-#define NO_ACTION_TAPPING	
+#define NO_ACTION_FUNCTION	
 #define NO_ACTION_ONESHOT
+#define NO_ACTION_TAPPING
 #define TAPPING_FORCE_HOLD	
 #define IGNORE_MOD_TAP_INTERRUPT
+#define LAYER_STATE_8BIT
+//#define NO_USB_STARTUP_CHECK
 // Remove this if you want to debug!
 #ifndef NO_DEBUG
     #define NO_DEBUG
@@ -57,6 +64,7 @@
     #define NO_PRINT
 #endif // !NO_PRINT
 
-// If you are using an Elite C rev3 on the slave side, uncomment the lines below:
 #define SPLIT_USB_DETECT
-#define NO_USB_STARTUP_CHECK
+#define WAIT_FOR_USB
+
+

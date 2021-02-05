@@ -57,25 +57,28 @@ enum layers {
   M_NOT,
   M_BSLSH,
 
+  M_PARE,
+  M_BRAC,
+  M_ACCO,
+
   M_RAISE,
   M_ENCD,
   M_BONGO,
   M_SWITCH,
-  M_EDIT,
   M_UGRV,
   M_LOCK,
   M_RGB,
-  M_SNIP
+  M_SNIP,
+  M_WBSPC,
+  M_CCCV
 };
 
 char wpm_str[12];
 char key_str[6];
 
-bool edit = 0;
-//bool write_keylog = 1;
-//bool bongo_time = 0;
 bool scrollFunc = 0;
 bool raiseOn = 0;
+uint16_t copy_paste_timer;
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 /*
@@ -95,8 +98,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [_COLEMAK] = LAYOUT(
       KC_TAB  , KC_Q ,  KC_W   ,  KC_F  ,   KC_P ,   KC_G ,                                        KC_J,   KC_L ,  KC_U ,   KC_Z ,KC_MINS, KC_BSPC,
       KC_LCTRL, KC_A ,  KC_R   ,  KC_S  ,   KC_T ,   KC_D ,                                        KC_H,   KC_N ,  KC_E ,   KC_I ,  KC_O , KC_QUOT,
-      KC_LSFT , KC_Y ,  KC_X   ,  KC_C  ,   KC_V ,   KC_B , M_LBTN, XXXXXXX , XXXXXXX, M_RBTN, KC_K,  KC_M ,KC_COMM, KC_DOT ,KC_SLSH, KC_RSFT,
-                                 KC_CAPS, KC_LALT,   M_LSLCT, LOWER, KC_SPC, KC_ENT, RAISE, M_RSLCT, KC_RALT, M_ENCD
+      KC_LSFT , KC_Y ,  KC_X   ,  KC_C  ,   KC_V ,   KC_B , M_CCCV, XXXXXXX , XXXXXXX, KC_DEL, KC_K,  KC_M ,KC_COMM, KC_DOT ,KC_SLSH, KC_RSFT,
+                                 KC_CAPS, KC_LALT,   LOWER, KC_SPC, M_PARE, M_WBSPC, KC_ENT, RAISE, KC_RALT, M_ENCD
     ),
 
 /*
@@ -118,7 +121,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
       KC_TAB  , KC_Q ,  KC_W   ,  KC_F  ,   KC_P ,   KC_G ,                                        KC_J,   KC_L ,  KC_U ,   KC_Z ,KC_MINS, KC_BSPC,
       KC_LCTRL, KC_A ,  KC_R   ,  KC_S  ,   KC_T ,   KC_D ,                                        KC_H,   KC_N ,  KC_E ,   KC_I ,  KC_O , KC_QUOT,
       KC_LSFT , KC_Y ,  KC_X   ,  KC_C  ,   KC_V ,   KC_B , KC_ESC, XXXXXXX , XXXXXXX, KC_RGHT, KC_K,  KC_M ,KC_COMM, KC_DOT ,KC_SLSH, KC_RSFT,
-                                 KC_CAPS, KC_LALT,   KC_LEFT, KC_DOWN, KC_SPC, KC_ENT, RAISE, M_RSLCT, KC_RALT, M_SWITCH
+                                 KC_CAPS, KC_LALT, KC_LEFT, _______, KC_DOWN, KC_ENT, KC_ENT, _______, _______, M_SWITCH
     ),
 #else //on left half, the second default layer is QWERTY
     [_CSGO] = LAYOUT(
@@ -146,7 +149,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
        KC_ESC, KC_VOLU, KC_HOME, KC_UP,   KC_END, KC_PGUP,                                      KC_6,    KC_7,    KC_8,    KC_9, KC_RBRC, KC_DEL,
       _______, KC_MUTE, KC_LEFT, KC_DOWN, KC_RGHT, KC_PGDN,                                     KC_CIRC,  KC_EQL, KC_SCLN, KC_BSPC, KC_RPRN, M_UGRV,
       _______, KC_VOLD, KC_MPRV, KC_MPLY, KC_MNXT, _______, M_LBRCT, _______, _______, M_RBRCT,   M_NOT,   M_BAR, KC_ASTR, KC_LPRN, _______, _______,
-                                 _______, _______, _______, _______,  KC_ENT, KC_BSPC, _______, _______, KC_RALT, _______
+                                 _______, _______, _______, KC_ENT,  M_BRAC,  _______, KC_BSPC, _______, KC_RALT, _______
     ),
 /*
  * Raise Layer: Numbers, symbols
@@ -166,17 +169,17 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
        KC_ESC, KC_1, 	  KC_2,    KC_3,    KC_4,    KC_5,                                        KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    _______,
       _______, KC_EXLM, KC_AT,   KC_HASH, KC_DLR,  KC_PERC,                                     KC_CIRC, KC_AMPR, KC_LBRC, M_BSLSH,  KC_RPRN, KC_NUHS,
       _______, _______,  M_AT,    M_HASH, _______, _______,  M_LSGL, _______, _______, M_RSGL,    M_NOT,   M_BAR, M_LBRCT, M_RBRCT,  M_LSGL, M_RSGL,
-                                 _______, _______, _______, LOWER, _______, _______, _______, M_RAISE, _______, _______
+                                 _______, _______, LOWER, _______, M_ACCO, _______, M_RAISE, _______, _______, _______
     ),
 /*
  * Adjust Layer: Function keys, RGB
  *
  * ,-------------------------------------------.                              ,-------------------------------------------.
- * | Switch |  F1  |  F2  |  F3  |  F4  |  F5  |                              |  F6  |  F7  |  F8  |  F9  |  F10 |        |
+ * | Switch |  F1  |  F2  |  F3  |  F4  |  F5  |                              |  F6  |  F7  |  F8  |  F9  |  F10 |  Reset |
  * |--------+------+------+------+------+------|                              |------+------+------+------+------+--------|
- * |  GUI   | SAI  | HUI  | VAI  | EDIT | MOD  |                              |      |      |      |  F11 |  F12 |        |
+ * |  GUI   | SAI  | HUI  | VAI  | Snip |      |                              |      |      |      |  F11 |  F12 | ON/OFF |
  * |--------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+--------|
- * |  LOCK  | SAD  | HUD  | VAD  |Purple|ON/OFF|  <   |      |  |      |  >   |      |      |      |      |      |        |
+ * |  LOCK  | SAD  | HUD  | VAD  |Purple|ON/OFF|  <   |      |  |      |  >   |      |      |      |      |      |  Snip  |
  * `----------------------+------+------+------+------+      |  |      +------+------+------+------+----------------------'
  *                        |      |      |      |      |      |  |      |      |      |      |      |
  *                        |      |      |      |      |      |  |      |      |      |      |      |
@@ -184,9 +187,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  */
     [_ADJUST] = LAYOUT(
     M_SWITCH, KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,                                       KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  RESET,
-    KC_LGUI, RGB_SAI, RGB_VAI, RGB_HUI,  M_EDIT, _______,                                     _______, _______, _______, KC_F11,  KC_F12,  RGB_TOG,
+    KC_LGUI, RGB_SAI, RGB_VAI, RGB_HUI,  M_SNIP, _______,                                     _______, _______, _______, KC_F11,  KC_F12,  RGB_TOG,
     M_LOCK, RGB_SAD, RGB_VAD, RGB_HUD, M_RGB, RGB_TOG, KC_NUBS, _______, _______, M_RTBCT, _______, _______, _______, _______, _______, M_SNIP,
-                                 _______, _______, _______, _______, _______, _______, _______, _______, KC_RALT, _______
+                                 _______, _______, _______, _______, KC_NUBS, M_RTBCT, _______, _______, KC_RALT, _______
     ),
 // /*
 //  * Layer template
@@ -416,9 +419,8 @@ void render_layer(void) {
 
 void render_status(void) {
   uint8_t led_usb_state = host_keyboard_leds();
-  oled_write_P(scrollFunc ? PSTR("S ") : PSTR("  "), false);
-  oled_write_P(IS_LED_ON(led_usb_state, USB_LED_CAPS_LOCK) ? PSTR("C ") : PSTR("  "), false);
-  oled_write_P(edit ? PSTR("E ") : PSTR("  "), false);
+  oled_write_P(IS_LED_ON(led_usb_state, USB_LED_CAPS_LOCK) ? PSTR("CAPS  ") : PSTR("      "), false);
+  oled_write_P(scrollFunc ? PSTR("* ") : PSTR("  "), false);
 }
 
 
@@ -518,25 +520,26 @@ void render_status(void) {
     }
 #endif
 
+
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {  
 
   #ifdef OLED_DRIVER_ENABLE
     anim2_sleep = anim_sleep = timer_read32();
 
-    oled_on();
+    oled_on();  // turn on oled if a keystroke is detected
 
     set_keylog(keycode, record);
 
     #ifdef KEYLOGGER_ENABLE
       keycode_write = 1;
-      keycode_timer = timer_read32();
+      keycode_timer = timer_read32(); // set the timers for the animations
       anim2_timer = timer_read32();
       anim2_frame = 0;
     #endif
   #endif
 
-  uint8_t default_layer = eeconfig_read_default_layer();
-  if (keycode == M_SWITCH) {
+  uint8_t default_layer = eeconfig_read_default_layer(); // read the current default layer
+  if (keycode == M_SWITCH) { // Switch default layers
     if(default_layer & (1UL << _COLEMAK)) {
       keycode = CSGO;
     } else {
@@ -545,20 +548,22 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   }
 
 switch(keycode) {
-  case COLEMAK:
+  case COLEMAK: // Switch to colemak
     if (record->event.pressed) {
       set_single_persistent_default_layer(_COLEMAK);
     }
     return false;
     break;
-    case CSGO:
+
+    case CSGO: // Switch to CSGO or QWERTY
     if (record->event.pressed) {
       set_single_persistent_default_layer(_CSGO);
     } else {
     }
     return false;
     break;
-  case LOWER:
+
+  case LOWER: // Lower
     if (record->event.pressed) {
       layer_on(_LOWER);
     } else {
@@ -566,7 +571,8 @@ switch(keycode) {
     }
     return false;
     break;
-  case RAISE:
+
+  case RAISE: // Raise
     if(!raiseOn) {
       if (record->event.pressed) {
         layer_on(_RAISE);
@@ -582,7 +588,8 @@ switch(keycode) {
     }
     return false;
     break;
-  case ADJUST:
+
+  case ADJUST: // Adjust
     if (record->event.pressed) {
       layer_on(_ADJUST);
     } else {
@@ -591,7 +598,7 @@ switch(keycode) {
     return false;
     break;
 
-  case M_LBRCT:
+  case M_LBRCT: // [
     if (record->event.pressed) {
       SEND_STRING(SS_DOWN(X_RALT) SS_DOWN(X_LBRC));
     } else {
@@ -599,7 +606,8 @@ switch(keycode) {
     }
     return false;
     break;
-  case M_RBRCT:
+
+  case M_RBRCT: // ]
     if (record->event.pressed) {
       SEND_STRING(SS_DOWN(X_RALT) SS_DOWN(X_RBRC));
     } else {
@@ -607,7 +615,8 @@ switch(keycode) {
     }
     return false;
     break;
-  case M_LSGL:
+
+  case M_LSGL: // {
     if (record->event.pressed) {
       SEND_STRING(SS_DOWN(X_RALT) SS_DOWN(X_QUOT));
     } else {
@@ -615,7 +624,8 @@ switch(keycode) {
     }
     return false;
     break;
-  case M_RSGL:
+
+  case M_RSGL: // }
     if (record->event.pressed) {
       SEND_STRING(SS_DOWN(X_RALT) SS_DOWN(X_NUHS));
     } else {
@@ -623,31 +633,26 @@ switch(keycode) {
     }
     return false;
     break;
-  case M_LBTN:
+
+  case M_LBTN: // ( 
     if (record->event.pressed) {
-      if(edit) {
-        SEND_STRING(SS_DOWN(X_LCTRL) SS_TAP(X_C) SS_UP(X_LCTRL));
-      } else {
-        SEND_STRING(SS_DOWN(X_LSFT) SS_DOWN(X_8));
-      }
-    } else if(!edit) {
-        SEND_STRING(SS_UP(X_LSFT) SS_UP(X_8));
+      SEND_STRING(SS_DOWN(X_LSFT) SS_DOWN(X_8));
+    } else {
+      SEND_STRING(SS_UP(X_LSFT) SS_UP(X_8));
     }
     return false;
     break;
-  case M_RBTN:
+
+  case M_RBTN: // )
     if (record->event.pressed) {
-      if(edit) {
-        SEND_STRING(SS_DOWN(X_LCTRL) SS_TAP(X_V) SS_UP(X_LCTRL));
-      } else {
-        SEND_STRING(SS_DOWN(X_LSFT) SS_DOWN(X_9));
-      }
-    } else if(!edit) {
-        SEND_STRING(SS_UP(X_LSFT) SS_UP(X_9));
+      SEND_STRING(SS_DOWN(X_LSFT) SS_DOWN(X_9));
+    } else {
+      SEND_STRING(SS_UP(X_LSFT) SS_UP(X_9));
     }
     return false;
     break;
-    case M_AT:
+
+    case M_AT: // @
     if (record->event.pressed) {
       SEND_STRING(SS_DOWN(X_RALT) SS_DOWN(X_2));
     } else {
@@ -655,7 +660,8 @@ switch(keycode) {
     }
     return false;
     break;
-    case M_HASH:
+
+    case M_HASH: // #
     if (record->event.pressed) {
       SEND_STRING(SS_DOWN(X_RALT) SS_DOWN(X_3));
     } else {
@@ -663,35 +669,16 @@ switch(keycode) {
     }
     return false;
     break;
-    /*case M_TOGK:
-    if (record->event.pressed) {
-      write_keylog = !write_keylog;
-    } else {
-    }
-    return false;
-    break;*/
-    /*case M_BONGO:
-    if (record->event.pressed) {
-      bongo_time = !bongo_time;
-    } else {
-    }
-    return false;
-    break; */
-    case M_EDIT:
-    if (record->event.pressed) {
-      edit = !edit;
-    } else {
-    }
-    return false;
-    break;
-    case M_UGRV:
+
+    case M_UGRV: // ù
     if (record->event.pressed) {
       SEND_STRING(SS_DOWN(X_LSFT) SS_TAP(X_EQL) SS_UP(X_LSFT) SS_TAP(X_U));
     } else {
     }
     return false;
     break; 
-    case M_RTBCT:
+
+    case M_RTBCT:  // >
     if (record->event.pressed) {
       SEND_STRING(SS_DOWN(X_LSFT) SS_DOWN(X_NUBS));
     } else {
@@ -699,16 +686,8 @@ switch(keycode) {
     }
     return false;
     break;
-    /*case M_COPY:
-        if (record->event.pressed) {
-          SEND_STRING(SS_DOWN(X_LCTRL) SS_TAP(X_C) SS_UP(X_LCTRL));
-        } else {
-          SEND_STRING(SS_DOWN(X_LCTRL) SS_TAP(X_V) SS_UP(X_LCTRL));
-    
-        }
-        return false;
-        break;*/
-    case M_ENCD:
+
+    case M_ENCD: // Switches the encoder functions, handles alt-tabing when encoder is held
     if (record->event.pressed) {  
       button_pressed = true;   
       if(has_scrolled) {
@@ -725,7 +704,8 @@ switch(keycode) {
     }
     return false;
     break;
-    case M_RAISE:
+
+    case M_RAISE: // When raise + space are pressed, the raise layer is kept on
     if (record->event.pressed) {
       if(raiseOn) {
         layer_off(_RAISE);
@@ -737,23 +717,8 @@ switch(keycode) {
     }
     return false;
     break;
-   case M_LSLCT:
-    if (record->event.pressed) {
-      SEND_STRING(SS_DOWN(X_LCTRL) /*SS_DOWN(X_LSFT)*/ SS_DOWN(X_LEFT));
-    } else {
-      SEND_STRING(SS_UP(X_LCTRL) /*SS_UP(X_LSFT)*/ SS_UP(X_LEFT));
-    }
-    return false;
-    break;
-  case M_RSLCT:
-    if (record->event.pressed) {
-      SEND_STRING(SS_DOWN(X_LCTRL) /*SS_DOWN(X_LSFT)*/ SS_DOWN(X_RIGHT));
-    } else {
-      SEND_STRING(SS_UP(X_LCTRL) /*SS_UP(X_LSFT)*/ SS_UP(X_RIGHT));
-    }
-    return false;
-    break;
-    case M_BAR:
+
+    case M_BAR: // |
     if (record->event.pressed) {
       SEND_STRING(SS_DOWN(X_RALT) SS_DOWN(X_7));
     } else {
@@ -761,7 +726,8 @@ switch(keycode) {
     }
     return false;
     break;
-    case M_NOT:
+
+    case M_NOT: // ~
     if (record->event.pressed) {
       SEND_STRING(SS_DOWN(X_RALT) SS_DOWN(X_EQL));
     } else {
@@ -769,7 +735,8 @@ switch(keycode) {
     }
     return false;
     break;
-    case M_BSLSH:
+
+    case M_BSLSH: // Backslash
     if (record->event.pressed) {
       SEND_STRING(SS_DOWN(X_RALT) SS_DOWN(X_NUBS));
     } else {
@@ -777,26 +744,67 @@ switch(keycode) {
     }
     return false;
     break;
-    case M_LOCK:
+
+    case M_LOCK: // Locks screen. Win + L
     if (record->event.pressed) {
-      SEND_STRING(SS_DOWN(X_LGUI) SS_TAP(X_L) SS_UP(X_LGUI));
+      SEND_STRING(SS_LGUI("l"));
     }
     return false;
     break;
-    case M_RGB:
+
+    case M_RGB: // Sets the RGB to a custom colour
     if (record->event.pressed) {
-      rgblight_sethsv(HSV_PURPLE);
+      rgblight_sethsv(103, 255, 255);
     }
     return false;
     break;
-    case M_SNIP:
+
+    case M_SNIP: // Takes a screenshot. Win + Shift + S
     if (record->event.pressed) {
       SEND_STRING(SS_DOWN(X_LGUI) SS_DOWN(X_LSFT) SS_TAP(X_S) SS_UP(X_LGUI) SS_UP(X_LSFT));
     }
     return false;
     break;
-    
 
+    case M_WBSPC: // Deletes word. Ctrl + Backspace
+    if (record->event.pressed) {
+      SEND_STRING(SS_DOWN(X_LCTRL) SS_TAP(X_BSPC) SS_UP(X_LCTRL));
+    }
+    return true;
+    break;
+    
+    case M_PARE: // ( + ) + LEFT
+    if (record->event.pressed) {
+      SEND_STRING(SS_LSFT("8") SS_LSFT("9") SS_TAP(X_LEFT));
+    }
+    return true;
+    break;
+
+    case M_BRAC: // [ + ] + LEFT
+    if (record->event.pressed) {
+      SEND_STRING(SS_RALT("[]") SS_TAP(X_LEFT));
+    }
+    return true;
+    break;
+
+    case M_ACCO: // { + } + LEFT
+    if (record->event.pressed) {
+      SEND_STRING(SS_DOWN(X_RALT) SS_TAP(X_QUOT) SS_TAP(X_NUHS) SS_TAP(X_RALT) SS_TAP(X_LEFT));
+    }
+    return true;
+    break;
+
+    case M_CCCV:  // One key copy/paste
+    if (record->event.pressed) {
+      copy_paste_timer = timer_read();  
+    } else {
+      if (timer_elapsed(copy_paste_timer) > TAPPING_TERM) {  // Hold, copy
+        tap_code16(LCTL(KC_C));
+      } else { // Tap, paste
+        tap_code16(LCTL(KC_V));
+      }
+    }
+    break;
     /*
     
     case :
@@ -810,3 +818,30 @@ switch(keycode) {
     }
   return true;
 }
+
+#ifdef LEADER_ENABLE
+//Leader key
+LEADER_EXTERNS();
+void matrix_scan_user(void) {
+  LEADER_DICTIONARY() {
+    leading = false;
+    leader_end();
+    
+    SEQ_ONE_KEY(KC_S) { // Snipping tool
+        SEND_STRING(SS_LGUI("S"));
+    }
+    SEQ_ONE_KEY(KC_L) { // Lock
+        SEND_STRING(SS_LGUI("l"));
+    }
+    SEQ_ONE_KEY(KC_B) { // ()
+        SEND_STRING(SS_LSFT("8") SS_LSFT("9") SS_TAP(X_LEFT));
+    } 
+    SEQ_ONE_KEY(KC_D) { // []
+        SEND_STRING(SS_RALT("[]") SS_TAP(X_LEFT));
+    }
+    SEQ_ONE_KEY(KC_G) { // {}
+        SEND_STRING(SS_DOWN(X_RALT) SS_TAP(X_QUOT) SS_TAP(X_NUHS) SS_TAP(X_RALT) SS_TAP(X_LEFT));
+    }
+  }
+}
+#endif
