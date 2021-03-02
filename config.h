@@ -28,11 +28,7 @@
 
 #define TAPPING_TERM 200
 
-#ifndef MASTER_RIGHT
-	#define ENCODER_RESOLUTION 2
-#else
-	#define ENCODER_RESOLUTION 2
-#endif
+#define ENCODER_RESOLUTION 2
 
 #define OLED_DISPLAY_128X64
 
@@ -65,6 +61,7 @@
 #endif // !NO_PRINT
 
 #define SPLIT_USB_DETECT
-#define WAIT_FOR_USB
+#define NO_USB_STARTUP_CHECK
+//#define WAIT_FOR_USB
 
 

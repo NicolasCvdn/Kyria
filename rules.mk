@@ -4,7 +4,6 @@ RGBLIGHT_ENABLE = yes      # Enable keyboard RGB underglow
 LEADER_ENABLE = no         # Enable the Leader Key feature
 MOUSEKEY_ENABLE = yes
 WPM_ENABLE = yes
-LTO_ENABLE = yes
 
 SRC +=  ./lib/keylogger.c \
 

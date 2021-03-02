@@ -56,7 +56,8 @@ enum layers {
   M_BAR,
   M_NOT,
   M_BSLSH,
-
+  M_UGRV,
+  
   M_PARE,
   M_BRAC,
   M_ACCO,
@@ -65,7 +66,7 @@ enum layers {
   M_ENCD,
   M_BONGO,
   M_SWITCH,
-  M_UGRV,
+ 
   M_LOCK,
   M_RGB,
   M_SNIP,
@@ -98,8 +99,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [_COLEMAK] = LAYOUT(
       KC_TAB  , KC_Q ,  KC_W   ,  KC_F  ,   KC_P ,   KC_G ,                                        KC_J,   KC_L ,  KC_U ,   KC_Z ,KC_MINS, KC_BSPC,
       KC_LCTRL, KC_A ,  KC_R   ,  KC_S  ,   KC_T ,   KC_D ,                                        KC_H,   KC_N ,  KC_E ,   KC_I ,  KC_O , KC_QUOT,
-      KC_LSFT , KC_Y ,  KC_X   ,  KC_C  ,   KC_V ,   KC_B , M_CCCV, XXXXXXX , XXXXXXX, KC_DEL, KC_K,  KC_M ,KC_COMM, KC_DOT ,KC_SLSH, KC_RSFT,
-                                 KC_CAPS, KC_LALT,   LOWER, KC_SPC, M_PARE, M_WBSPC, KC_ENT, RAISE, KC_RALT, M_ENCD
+      KC_LSFT , KC_Y ,  KC_X   ,  KC_C  ,   KC_V ,   KC_B , M_LBTN, XXXXXXX , XXXXXXX, M_RBTN, KC_K,  KC_M ,KC_COMM, KC_DOT ,KC_SLSH, KC_RSFT,
+                                 KC_CAPS, KC_LALT,   LOWER, KC_SPC, M_PARE, M_WBSPC, KC_ENT, RAISE, KC_LGUI, M_ENCD
     ),
 
 /*
@@ -121,7 +122,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
       KC_TAB  , KC_Q ,  KC_W   ,  KC_F  ,   KC_P ,   KC_G ,                                        KC_J,   KC_L ,  KC_U ,   KC_Z ,KC_MINS, KC_BSPC,
       KC_LCTRL, KC_A ,  KC_R   ,  KC_S  ,   KC_T ,   KC_D ,                                        KC_H,   KC_N ,  KC_E ,   KC_I ,  KC_O , KC_QUOT,
       KC_LSFT , KC_Y ,  KC_X   ,  KC_C  ,   KC_V ,   KC_B , KC_ESC, XXXXXXX , XXXXXXX, KC_RGHT, KC_K,  KC_M ,KC_COMM, KC_DOT ,KC_SLSH, KC_RSFT,
-                                 KC_CAPS, KC_LALT, KC_LEFT, _______, KC_DOWN, KC_ENT, KC_ENT, _______, _______, M_SWITCH
+                                M_SWITCH, KC_LALT, KC_LEFT, _______, KC_DOWN, KC_ENT, KC_ENT, _______, _______, M_SWITCH
     ),
 #else //on left half, the second default layer is QWERTY
     [_CSGO] = LAYOUT(
@@ -159,7 +160,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * |--------+------+------+------+------+------|                              |------+------+------+------+------+--------|
  * |        |   +  |  "   |  *   |  ç   |  %   |                              |  &   |  /   |  è   |  i   |  =   |        |
  * |--------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+--------|
- * |        |      |      |  #   |      |      |  {   |      |  |      |  }   |  ~   |  |   |  [   |  ]   |  {   |   }    |
+ * |        |      |  @   |  #   |      |      |  {   |      |  |      |  }   |  ~   |  |   |  [   |  ]   |  {   |   }    |
  * `----------------------+------+------+------+------+      |  |      +------+------+------+------+----------------------'
  *                        |      |      |      |      |      |  |      |      |      |      |      |
  *                        |      |      |      |      |      |  |      |      |      |      |      |
