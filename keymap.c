@@ -67,6 +67,7 @@ enum layers {
   M_BONGO,
   M_SWITCH,
  
+  M_CADL,
   M_LOCK,
   M_RGB,
   M_SNIP,
@@ -188,7 +189,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  */
     [_ADJUST] = LAYOUT(
     M_SWITCH, KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,                                       KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  RESET,
-    KC_LGUI, RGB_SAI, RGB_VAI, RGB_HUI,  M_SNIP, _______,                                     _______, _______, _______, KC_F11,  KC_F12,  RGB_TOG,
+    KC_CAPS, RGB_SAI, RGB_VAI, RGB_HUI,  M_SNIP, KC_CAPS,                                     _______, _______, _______, KC_F11,  KC_F12,  M_CADL,
     M_LOCK, RGB_SAD, RGB_VAD, RGB_HUD, M_RGB, RGB_TOG, KC_NUBS, _______, _______, M_RTBCT, _______, _______, _______, _______, _______, M_SNIP,
                                  _______, _______, _______, _______, KC_NUBS, M_RTBCT, _______, _______, KC_RALT, _______
     ),
@@ -390,33 +391,91 @@ layer_state_t layer_state_set_user(layer_state_t state) {
   }
 
 void render_layer(void) {
+  static const char PROGMEM default_layer1[] = {
+      0x20, 0x94, 0x95, 0x96, 0x20,0};
+  static const char PROGMEM default_layer2[] = {
+      0x20, 0xb4, 0xb5, 0xb6, 0x20,0};
+  static const char PROGMEM default_layer3[] = {
+      0x20, 0xd4, 0xd5, 0xd6, 0x20,0}; 
+  static const char PROGMEM csgo_layer1[] = {
+      0x20, 0x80, 0x81, 0x86, 0x20,0};
+  static const char PROGMEM csgo_layer2[] = {
+      0x20, 0xa0, 0xa1, 0xa6, 0x20,0};
+  static const char PROGMEM csgo_layer3[] = {
+      0x20, 0xc0, 0xc1, 0xc6, 0x20,0}; 
+  static const char PROGMEM raise_layer1[] = {
+      0x20, 0x97, 0x98, 0x99, 0x20, 0};
+  static const char PROGMEM raise_layer2[] = {
+      0x20, 0xb7, 0xb8, 0xb9, 0x20, 0};
+  static const char PROGMEM raise_layer3[] = {
+      0x20, 0xd7, 0xd8, 0xd9, 0x20, 0};
+  static const char PROGMEM lower_layer1[] = {
+      0x20, 0x9a, 0x9b, 0x9c, 0x20, 0};
+  static const char PROGMEM lower_layer2[] = {    
+  0x20, 0xba, 0xbb, 0xbc, 0x20, 0};
+  static const char PROGMEM lower_layer3[] = {    
+      0x20, 0xda, 0xdb, 0xdc, 0x20, 0};
+  static const char PROGMEM adjust_layer1[] = {
+      0x20, 0x9d, 0x9e, 0x9f, 0x20, 0};
+  static const char PROGMEM adjust_layer2[] = {
+      0x20, 0xbd, 0xbe, 0xbf, 0x20, 0};
+  static const char PROGMEM adjust_layer3[] = {
+      0x20, 0xdd, 0xde, 0xdf, 0x20, 0};
+
   uint8_t default_layer = eeconfig_read_default_layer();
     switch (get_highest_layer(layer_state)) {
       case _COLEMAK: //default layer
-          if(default_layer & (1UL << _COLEMAK))
-            oled_write_P(PSTR("Colemak"), false);
-          else if (default_layer & (1UL << _CSGO))
-            #ifndef MASTER_RIGHT
+          if(default_layer & (1UL << _COLEMAK)) {
+            oled_write_P(default_layer1, false);
+            oled_set_cursor(15, 1);
+            oled_write_P(default_layer2, false);
+            oled_set_cursor(15, 2);
+            oled_write_P(default_layer3, false);
+          } else if (default_layer & (1UL << _CSGO)) {
+            /*#ifndef MASTER_RIGHT
               oled_write_P(PSTR("CS:GO  "), false);
             #else
               oled_write_P(PSTR("Qwerty "), false);
-          #endif
-          else
+            #endif*/
+            oled_write_P(csgo_layer1, false);
+            oled_set_cursor(15, 1);
+            oled_write_P(csgo_layer2, false);
+            oled_set_cursor(15, 2);
+            oled_write_P(csgo_layer3, false);
+        } else
             oled_write_P(PSTR("ErState"), false);
           break;
       case _LOWER:
-          oled_write_P(PSTR("Lower    "), false);
+          oled_write_P(lower_layer1, false);
+          oled_set_cursor(15, 1);
+          oled_write_P(lower_layer2, false);
+          oled_set_cursor(15, 2);
+          oled_write_P(lower_layer3, false);   
+          //oled_write_P(PSTR("Lower    "), false);
           break;
       case _RAISE:
-          oled_write_P(PSTR("Raise    "), false);
+          oled_write_P(raise_layer1, false);
+          oled_set_cursor(15, 1);
+          oled_write_P(raise_layer2, false);
+          oled_set_cursor(15, 2);
+          oled_write_P(raise_layer3, false);
+          //oled_write_P(PSTR("Raise    "), false);
           break;
       case _ADJUST:
-          oled_write_P(PSTR("Adjust   "), false);
+          oled_write_P(adjust_layer1, false);
+          oled_set_cursor(15, 1);
+          oled_write_P(adjust_layer2, false);
+          oled_set_cursor(15, 2);
+          oled_write_P(adjust_layer3, false); 
+          //oled_write_P(PSTR("Adjust   "), false);
           break;
       default:
           oled_write_P(PSTR("Undefined"), false);
     }
 }
+
+
+
 
 void render_status(void) {
   uint8_t led_usb_state = host_keyboard_leds();
@@ -438,11 +497,11 @@ void render_status(void) {
     // WPM calculation
     sprintf(wpm_str, "WPM: %03d\n", get_current_wpm());
     oled_write(wpm_str, false);
-    oled_set_cursor(13, 0);
+    oled_set_cursor(15, 0);
 
     // Host Keyboard Layer Status
     render_layer();
-    oled_set_cursor(13, 2);
+    oled_set_cursor(13, 3);
 
     // Host Keyboard LED Status
     render_status();
@@ -450,9 +509,9 @@ void render_status(void) {
 
   void render_logo(void) {
     static const char PROGMEM qmk_logo[] = {
-      0x80,0x81,0x82,0x83,0x84,0x85,0x86,0x87,0x88,0x89,0x8a,0x8b,0x8c,0x8d,0x8e,0x8f,0x90,0x91,0x92,0x93,0x94,
-      0xa0,0xa1,0xa2,0xa3,0xa4,0xa5,0xa6,0xa7,0xa8,0xa9,0xaa,0xab,0xac,0xad,0xae,0xaf,0xb0,0xb1,0xb2,0xb3,0xb4,
-      0xc0,0xc1,0xc2,0xc3,0xc4,0xc5,0xc6,0xc7,0xc8,0xc9,0xca,0xcb,0xcc,0xcd,0xce,0xcf,0xd0,0xd1,0xd2,0xd3,0xd4,0};
+      0x20,0x20,0x82,0x83,0x84,0x85,0x20,0x87,0x88,0x89,0x8a,0x8b,0x8c,0x8d,0x8e,0x8f,0x90,0x91,0x92,0x20,0x20,
+      0x20,0x20,0xa2,0xa3,0xa4,0xa5,0x20,0xa7,0xa8,0xa9,0xaa,0xab,0xac,0xad,0xae,0xaf,0xb0,0xb1,0xb2,0x20,0x20,
+      0x20,0x20,0xc2,0xc3,0xc4,0xc5,0x20,0xc7,0xc8,0xc9,0xca,0xcb,0xcc,0xcd,0xce,0xcf,0xd0,0xd1,0xd2,0x20,0x20,0};
 
     oled_write_P(qmk_logo, false);
   }
@@ -461,8 +520,10 @@ void render_status(void) {
   void oled_task_user(void) {
 
       if (is_keyboard_master()) {
+          oled_set_cursor(0, 0);
           render_host(); 
       } else {
+          oled_set_cursor(0, 0);
           oled_write_ln_P(PSTR("\n"), false);
           render_logo();
       }
@@ -769,7 +830,9 @@ switch(keycode) {
 
     case M_WBSPC: // Deletes word. Ctrl + Backspace
     if (record->event.pressed) {
-      SEND_STRING(SS_DOWN(X_LCTRL) SS_TAP(X_BSPC) SS_UP(X_LCTRL));
+      SEND_STRING(SS_DOWN(X_LCTRL) SS_DOWN(X_BSPC));
+    } else {
+      SEND_STRING(SS_UP(X_LCTRL) SS_UP(X_BSPC));
     }
     return true;
     break;
@@ -786,6 +849,13 @@ switch(keycode) {
       SEND_STRING(SS_RALT("[]") SS_TAP(X_LEFT));
     }
     return true;
+    break;
+
+    case M_CADL: // ctrl alt del
+    if (record->event.pressed) {
+      SEND_STRING(SS_DOWN(X_LCTRL) SS_DOWN(X_LALT) SS_TAP(X_DEL) SS_UP(X_LCTRL) SS_UP(X_LALT));
+    }
+    return false;
     break;
 
     case M_ACCO: // { + } + LEFT
